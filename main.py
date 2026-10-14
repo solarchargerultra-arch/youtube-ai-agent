@@ -1,16 +1,20 @@
 import os
-import requests
 from flask import Flask
+from google import genai
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-api_key = os.environ.get("GEMINI_API_KEY")
-url = f"https://generativelanguage.googleapis.com/v1models/gemini-2.5-flash:generateContent?key={api_key}"
-
-# Se la chiamata diretta dà problemi, intanto facciamo rispondere Flask per vedere se va "Live"
-return "<h1>Server Online e Funzionante!</h1>", 200
+try:
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+res = client.models.generate_content(
+model="gemini-2.5-flash",
+contents="Crea un titolo e una descrizione per un video YouTube sulla tecnologia moderna."
+)
+return f"<h1>Agente Attivo!</h1><p>{res.text}</p>", 200
+except Exception as e:
+return f"Errore: {str(e)}", 500
 
 if name == "__main__":
 app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
